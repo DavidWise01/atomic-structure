@@ -99,7 +99,7 @@
 
   <div class="stage" style="margin-top:34px">
     <div class="stitle">▸ the missing link — the shapes build the rings</div>
-    <canvas id="gnomon" width="940" height="440" aria-label="Odd numbers bent into squares, then doubled into shell capacities"></canvas>
+    <canvas id="gnomon" width="940" height="480" aria-label="Odd numbers bent into squares, then doubled into an n by n by 2 box of shell capacity"></canvas>
   </div>
   <p class="hint">the odd ladder (1·3·5·7·9) bent at 90° — each an L-shaped gnomon, one layer deep — sums to perfect squares; ×2 for spin gives the shell capacities 2n². the two views on this page are one ladder.</p>
 
@@ -230,23 +230,37 @@
   var GCOL=["#5bd6f0","#3fa7d8","#6f7be0","#a86fd6","#e6b84a"], LET=["s","p","d","f","g"], ODD=[1,3,5,7,9], SHN=["K","L","M","N","O"];
   function drawGnomon(step){
     if(!gc) return; var c=gc;
-    c.fillStyle=COL.bg; c.fillRect(0,0,940,440);
-    // ---- LEFT: odd brackets snapping into a square ----
-    var ox=78, oy=104, cell=42;
-    T(c,"the odd ladder, bent 90°", ox, oy-50, "rgba(160,185,215,0.7)", "11px 'Space Mono',monospace");
-    for(var li=0;li<5;li++){ T(c,LET[li], ox+li*34, oy-26, li<step?GCOL[li]:"rgba(120,140,170,0.4)", "bold 15px 'Press Start 2P',monospace"); }
-    for(var n=1;n<=step;n++){
-      for(var i=0;i<n;i++){ for(var j=0;j<n;j++){
-        if(Math.max(i,j)!==n-1) continue;
-        var x=ox+j*cell, y=oy+i*cell, latest=(n===step);
-        c.globalAlpha=latest?0.95:0.6; c.fillStyle=GCOL[n-1]; c.fillRect(x+2,y+2,cell-4,cell-4);
-        if(latest){ c.globalAlpha=1; c.strokeStyle="#fff"; c.lineWidth=2; c.strokeRect(x+2,y+2,cell-4,cell-4); }
-        c.globalAlpha=1;
-      } }
-    }
-    var eq=ODD.slice(0,step).join(" + "), sq=step*step;
-    T(c, eq+" = "+sq+" = "+step+"²", ox, oy+5*cell+34, COL.ink, "bold 15px 'Space Mono',monospace");
-    T(c, "each bracket = the next odd = a 90° gnomon, one layer deep", ox, oy+5*cell+54, "rgba(160,185,215,0.6)", "11px 'Space Mono',monospace");
+    c.fillStyle=COL.bg; c.fillRect(0,0,940,480);
+    // ---- LEFT: the gnomon square, extruded by spin into an n × n × 2 box ----
+    var ox=94, oy=98, cell=40, S=step*cell, ex=19, ey=14, eqY=352, subY=372;
+    T(c,"the odd ladder, bent 90°  →  an n × n × 2 box", ox, oy-46, "rgba(160,185,215,0.72)", "11px 'Space Mono',monospace");
+    for(var li=0;li<5;li++){ T(c,LET[li], ox+li*32, oy-24, li<step?GCOL[li]:"rgba(120,140,170,0.4)", "bold 14px 'Press Start 2P',monospace"); }
+    // the two spin faces (the "×2 = 2 deep")
+    c.fillStyle="rgba(91,214,240,0.11)"; // right face
+    c.beginPath(); c.moveTo(ox+S,oy); c.lineTo(ox+S+ex,oy+ey); c.lineTo(ox+S+ex,oy+S+ey); c.lineTo(ox+S,oy+S); c.closePath(); c.fill();
+    c.fillStyle="rgba(91,214,240,0.06)"; // bottom face
+    c.beginPath(); c.moveTo(ox,oy+S); c.lineTo(ox+ex,oy+S+ey); c.lineTo(ox+S+ex,oy+S+ey); c.lineTo(ox+S,oy+S); c.closePath(); c.fill();
+    // divider down the right face = literally the 2 spin layers (↑ / ↓)
+    c.strokeStyle="rgba(230,184,74,0.6)"; c.lineWidth=1.2;
+    c.beginPath(); c.moveTo(ox+S+ex/2, oy+ey/2); c.lineTo(ox+S+ex/2, oy+S+ey/2); c.stroke();
+    // front face: the orbitals (gnomon-colored), summing to n²
+    for(var n=1;n<=step;n++){ for(var i=0;i<n;i++){ for(var j=0;j<n;j++){
+      if(Math.max(i,j)!==n-1) continue;
+      var x=ox+j*cell, y=oy+i*cell, latest=(n===step);
+      c.globalAlpha=latest?0.95:0.6; c.fillStyle=GCOL[n-1]; c.fillRect(x+1.5,y+1.5,cell-3,cell-3);
+      if(latest){ c.globalAlpha=1; c.strokeStyle="#fff"; c.lineWidth=2; c.strokeRect(x+1.5,y+1.5,cell-3,cell-3); }
+      c.globalAlpha=1;
+    } } }
+    c.strokeStyle="rgba(220,230,242,0.5)"; c.lineWidth=1; c.strokeRect(ox,oy,S,S);
+    // axis labels (track the current square)
+    T(c, "width = "+step, ox+S/2, oy+S+ey+22, COL.elec, "12px 'Space Mono',monospace", "center");
+    c.save(); c.translate(ox-15, oy+S/2); c.rotate(-Math.PI/2); T(c,"depth = "+step, 0,0, COL.elec, "12px 'Space Mono',monospace","center"); c.restore();
+    T(c, "height = 2", ox+S+ex+8, oy+S/2-3, COL.seal, "11px 'Space Mono',monospace");
+    T(c, "spin ↑↓", ox+S+ex+8, oy+S/2+11, "rgba(230,184,74,0.7)", "10px 'Space Mono',monospace");
+    // fixed equation lines (don't jump as the square grows)
+    var eq=ODD.slice(0,step).join("+"), sq=step*step;
+    T(c, eq+" = "+sq+" = "+step+"²    ·    ×2 = "+(2*sq), ox, eqY, COL.ink, "bold 14px 'Space Mono',monospace");
+    T(c, "width × depth × spin  =  n × n × 2  =  2n²  (the shell capacity)", ox, subY, "rgba(160,185,215,0.62)", "11px 'Space Mono',monospace");
     // ---- RIGHT: shapes -> squares -> x2 -> shells ----
     var rx=452, ry=[104,176,248,320,392];
     T(c, "shapes  →  squares  →  ×2 spin  =  shells", rx, 66, COL.acc, "bold 13px 'Space Mono',monospace");
