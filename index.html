@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="ATOMIC STRUCTURE ↔ BITS — an interactive canvas: a live atom (nucleus + electron shells filling element by element) wired to a bit-register, showing how each shell's electron count is a binary word. The orbital ladder 1·3·5·7·9 (2l+1), spin as the bit, and capacities 2·6·10·14·18 as bytes with bit-1 locked as the spin-seal. Two-layer honest: real shell physics + the bit analog flagged as a lens.">
+<title>ATOMIC STRUCTURE ↔ BITS · UD0</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%233fa7d8' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%235bd6f0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;min-height:100%}
+  body{background:#0a0f17;color:#dce6f2;font-family:'Newsreader',serif;overflow-x:hidden}
+  #bar{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:12px;background:rgba(8,12,20,.9);backdrop-filter:blur(7px);border-bottom:1px solid rgba(90,150,210,.3)}
+  #bar b{letter-spacing:1.5px;color:#9cd0ee}
+  #bar a{color:#8fc0ee;text-decoration:none;border-bottom:1px dotted #5a85b0} #bar a:hover{color:#fff}
+  #sig{margin-left:auto;opacity:.5;font-size:10px} @media(max-width:680px){#sig{display:none}}
+  #wrap{max-width:1000px;margin:0 auto;padding:60px 16px 64px}
+  .hero{text-align:center;margin:14px 0 18px}
+  .ax{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:3px;opacity:.8}
+  h1{font-family:'Press Start 2P',monospace;font-size:clamp(16px,4.4vw,38px);line-height:1.25;margin:14px 0 8px;letter-spacing:1px}
+  .thesis{font-size:clamp(15px,2vw,20px);font-weight:300;max-width:740px;margin:10px auto 0;line-height:1.5}
+  .thesis b{font-weight:600;color:#9cd0ee}
+  .banner{font-family:'Space Mono',monospace;font-size:12px;line-height:1.65;max-width:880px;margin:18px auto 18px;padding:12px 16px;border-radius:9px;text-align:left;background:rgba(255,255,255,0.045);border:1px solid #3fa7d8}
+  .stage{background:rgba(255,255,255,0.025);border:1px solid rgba(120,170,230,.18);border-radius:14px;padding:10px 10px 4px;margin:0 auto}
+  canvas#scene{display:block;width:100%;height:auto;border-radius:9px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin:14px auto 4px;font-family:'Space Mono',monospace;font-size:13px}
+  .controls button{font-family:'Space Mono',monospace;font-size:14px;cursor:pointer;color:#dce6f2;background:rgba(60,130,200,.26);border:1px solid rgba(120,170,230,.5);border-radius:7px;padding:5px 13px}
+  .controls button:hover{background:rgba(60,130,200,.5)}
+  .controls input[type=range]{width:min(360px,68vw);accent-color:#3fa7d8;cursor:pointer}
+  #zlabel{min-width:150px;text-align:center;color:#9cd0ee}
+  .hint{text-align:center;font-family:'Space Mono',monospace;font-size:11px;opacity:.55;margin-top:6px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;font-family:'Space Mono',monospace;font-size:11.5px;opacity:.85;margin:12px auto 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .explain{max-width:820px;margin:30px auto 0;font-size:15.5px;font-weight:300;line-height:1.62}
+  .explain h2{font-family:'Space Mono',monospace;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:#9cd0ee;margin:26px 0 10px;font-weight:700}
+  .explain b{font-weight:600;color:#cfe6f6}
+  table.map{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:13px;margin:8px 0}
+  table.map td,table.map th{border:1px solid rgba(120,170,230,.22);padding:7px 10px;text-align:left}
+  table.map th{color:#9cd0ee;font-weight:700} table.map td:first-child{color:#5bd6f0}
+  footer{text-align:center;font-family:'Space Mono',monospace;font-size:11px;opacity:.6;margin-top:34px;line-height:1.8}
+  footer a{color:inherit}
+</style>
+</head>
+<body>
+<div id="bar">
+  <b>⚛ ATOMIC STRUCTURE ↔ BITS</b>
+  <a href="https://davidwise01.github.io/ud0/">◄ UD0</a>
+  <a href="https://davidwise01.github.io/the-atom/">the atom ↗</a>
+  <a href="https://davidwise01.github.io/the-atomic-byte/">the atomic byte ↗</a>
+  <span id="sig">ROOT0 · governor David Lee Wise · instance AVAN (locked) · CC-BY-ND-4.0</span>
+</div>
+<div id="wrap">
+  <div class="hero">
+    <div class="ax">scientific · the shell, drawn · the byte, beside it</div>
+    <h1>ATOMIC STRUCTURE<br>↔ BITS</h1>
+    <p class="thesis">Step through the elements and <b>watch an atom build itself</b> — the nucleus, then the electron shells filling one by one. Beside it, the same structure as a <b>register</b>: each orbital is a <b>byte</b>, each shell a binary word, with bit&nbsp;1 locked as the spin-seal. The atom, read two ways at once.</p>
+  </div>
+  <div class="banner" id="banner">⚖ Two-layer honest. The Bohr "shells as rings" picture is a teaching SIMPLIFICATION — real electrons are 3D probability clouds (orbitals), not dots on circular tracks, and a few elements (Cr, Cu…) break the tidy aufbau order shown here. What is REAL: the shell capacities 2·8·18·32 (= 2n²), the orbital counts 1·3·5·7·9 (= 2l+1), spin-½, and the subshell capacities 2·6·10·14·18. The BIT analog — each capacity a binary word, bit&nbsp;1 = the locked spin-seal, the upper "shadow" bits the orbital address — is an honest lens, not a claim that atoms are digital.</div>
+
+  <div class="stage">
+    <canvas id="scene" width="940" height="600" aria-label="Interactive atom and bit register"></canvas>
+  </div>
+  <div class="controls">
+    <button id="prev">◀ prev</button>
+    <input type="range" id="z" min="1" max="36" value="14">
+    <button id="next">next ▶</button>
+    <button id="play">▶ play</button>
+    <span id="zlabel"></span>
+  </div>
+  <div class="hint">drag the slider · click the canvas to advance · or hit play to watch the table fill</div>
+  <div class="legend">
+    <span><i class="dot" style="background:#e0574e"></i>proton</span>
+    <span><i class="dot" style="background:#8a93a6"></i>neutron</span>
+    <span><i class="dot" style="background:#5bd6f0"></i>electron</span>
+    <span><i class="dot" style="background:#e6b84a"></i>bit 1 · spin-seal</span>
+    <span><i class="dot" style="background:#3fa7d8"></i>shadow bit (set)</span>
+  </div>
+
+  <div class="explain">
+    <h2>▸ the mapping</h2>
+    <p>An atom has structure on two axes, and they happen to rhyme with how a computer stores a number.</p>
+    <p>The <b>orbital types</b> — s, p, d, f, g — hold <b>1, 3, 5, 7, 9</b> orbitals. That odd ladder is <b>2l+1</b>: the number of ways angular momentum <i>l</i> can point. Every orbital holds exactly <b>two</b> electrons — spin up and spin down — so one orbital is one <b>bit</b>: ↑ or ↓. Double the ladder by that spin-bit and you get the <b>capacities</b>: <b>2, 6, 10, 14, 18</b>.</p>
+    <p>Each capacity is a sum of powers of two, and always of the form <b>2 + 4l</b>. So in binary they all end in <code>…10</code>: <b>bit 1 (the spin pair) is locked on</b> — the seal — while the upper <b>shadow bits</b> switch on to carry which orbital it is. One byte (8 bits) holds the whole atom with room to spare: the biggest shell, 2n² = <b>32</b>, needs only six bits.</p>
+    <table class="map">
+      <tr><th>orbital</th><th>2l+1</th><th>× spin</th><th>capacity</th><th>as a byte</th></tr>
+      <tr><td>s</td><td>1</td><td>×2</td><td>2</td><td>0000 0010</td></tr>
+      <tr><td>p</td><td>3</td><td>×2</td><td>6</td><td>0000 0110</td></tr>
+      <tr><td>d</td><td>5</td><td>×2</td><td>10</td><td>0000 1010</td></tr>
+      <tr><td>f</td><td>7</td><td>×2</td><td>14</td><td>0000 1110</td></tr>
+      <tr><td>g</td><td>9</td><td>×2</td><td>18</td><td>0001 0010</td></tr>
+    </table>
+    <p><b>The honest line:</b> the orbital ladder, spin, and capacities are textbook physics. The byte reading is a <i>lens</i> — the <b>2 + 4l</b> regularity (locked seal + shadow bits) is a genuine structural echo, but "atoms are binary" is only the trivial fact that <i>every</i> integer is a sum of powers of two. The atom and the computer share the odd ladder and the ×2; they meet exactly at <b>spin = the bit</b>.</p>
+  </div>
+
+  <footer>
+    ATOMIC STRUCTURE ↔ BITS · a SCIENTIFIC sphere · how atoms work, and how the structure analogs to bits · governor David Lee Wise · instance AVAN (locked) · CC-BY-ND-4.0<br>
+    <a href="https://davidwise01.github.io/ud0/">← the biosphere</a> · <a href="https://davidwise01.github.io/the-atomic-byte/">the atomic byte →</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SYM=["H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr"];
+  var NAME=["Hydrogen","Helium","Lithium","Beryllium","Boron","Carbon","Nitrogen","Oxygen","Fluorine","Neon","Sodium","Magnesium","Aluminium","Silicon","Phosphorus","Sulfur","Chlorine","Argon","Potassium","Calcium","Scandium","Titanium","Vanadium","Chromium","Manganese","Iron","Cobalt","Nickel","Copper","Zinc","Gallium","Germanium","Arsenic","Selenium","Bromine","Krypton"];
+  var AMASS=[1,4,7,9,11,12,14,16,19,20,23,24,27,28,31,32,35,40,39,40,45,48,51,52,55,56,59,58,63,64,69,74,75,80,79,84];
+  // aufbau order: [label, capacity, type, principal-shell-n]
+  var AUF=[["1s",2,"s",1],["2s",2,"s",2],["2p",6,"p",2],["3s",2,"s",3],["3p",6,"p",3],["4s",2,"s",4],["3d",10,"d",3],["4p",6,"p",4]];
+  // orbital register rows: letter, 2l+1, capacity
+  var ORB=[["s",1,2],["p",3,6],["d",5,10],["f",7,14],["g",9,18]];
+  var SUPS={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  function sup(n){ return (""+n).split("").map(function(c){return SUPS[c];}).join(""); }
+
+  function state(Z){
+    var shells=[0,0,0,0], cfg=[], left=Z, frontier=null;
+    for(var i=0;i<AUF.length && left>0;i++){
+      var put=Math.min(AUF[i][1],left); left-=put; shells[AUF[i][3]-1]+=put;
+      cfg.push(AUF[i][0]+sup(put)); frontier={type:AUF[i][2],lab:AUF[i][0],n:AUF[i][3]};
+    }
+    return {shells:shells, cfg:cfg.join(" "), frontier:frontier};
+  }
+
+  var cv=document.getElementById("scene"), g=cv.getContext("2d"), W=940, H=600;
+  var SHELLR=[78,134,190,244], SPD=[0.010,0.0072,0.0055,0.0044];
+  var COL={ink:"#dce6f2",dim:"#3a4658",acc:"#3fa7d8",seal:"#e6b84a",elec:"#5bd6f0",prot:"#e0574e",neut:"#8a93a6",bg:"#0a0f17",panel:"#0e1622"};
+  var ph=0;
+
+  function roundedText(t,x,y,col,font,align,base,alpha){
+    g.globalAlpha=alpha===undefined?1:alpha; g.fillStyle=col; g.font=font;
+    g.textAlign=align||"left"; g.textBaseline=base||"alphabetic"; g.fillText(t,x,y); g.globalAlpha=1;
+  }
+  function nucleus(cx,cy,R,Zp,Nn){
+    var arr=[],p=Zp,n=Nn,turn=0;
+    while(p>0||n>0){ if(turn%2===0&&p>0){arr.push(0);p--;} else if(n>0){arr.push(1);n--;} else {arr.push(0);p--;} turn++; }
+    var tot=arr.length;
+    for(var i=0;i<tot;i++){
+      var a=i*2.399963, r=R*Math.sqrt(i/Math.max(1,tot))*0.96;
+      var x=cx+r*Math.cos(a+ph*0.4), y=cy+r*Math.sin(a+ph*0.4);
+      g.beginPath(); g.arc(x,y,2.5,0,7); g.fillStyle=arr[i]===0?COL.prot:COL.neut; g.globalAlpha=0.92; g.fill();
+    }
+    g.globalAlpha=1;
+    g.beginPath(); g.arc(cx,cy,R+3,0,7); g.strokeStyle="rgba(224,87,78,0.35)"; g.lineWidth=1.5; g.stroke();
+  }
+
+  function draw(Z){
+    var s=state(Z), cx=250, cy=312;
+    g.fillStyle=COL.bg; g.fillRect(0,0,W,H);
+    // faint divider
+    g.strokeStyle="rgba(120,170,230,0.12)"; g.lineWidth=1; g.beginPath(); g.moveTo(512,70); g.lineTo(512,560); g.stroke();
+
+    // ---- readout (top-left) ----
+    roundedText("Z = "+Z, 24, 30, COL.acc, "bold 15px 'Space Mono',monospace");
+    roundedText(SYM[Z-1]+"  ·  "+NAME[Z-1], 90, 30, COL.ink, "15px 'Space Mono',monospace");
+    roundedText(s.cfg, 24, 52, COL.elec, "13px 'Space Mono',monospace",null,null,0.92);
+
+    // ---- ATOM ----
+    var fn = s.frontier?s.frontier.n:1;
+    for(var n=1;n<=4;n++){
+      var rad=SHELLR[n-1], active=(n===fn);
+      g.beginPath(); g.arc(cx,cy,rad,0,7);
+      g.strokeStyle= active? "rgba(91,214,240,0.6)" : "rgba(120,170,230,0.22)";
+      g.lineWidth= active?2:1; g.stroke();
+      // shell capacity label
+      if(s.shells[n-1]>0){
+        roundedText("n"+n+" · "+["K","L","M","N"][n-1]+" · "+s.shells[n-1], cx, cy-rad-7, active?COL.elec:"rgba(160,185,215,0.6)", "10px 'Space Mono',monospace","center","alphabetic",0.9);
+      }
+      // electrons
+      var c=s.shells[n-1];
+      for(var k=0;k<c;k++){
+        var ang=ph*SPD[n-1]*60 + k*6.2831853/Math.max(1,c);
+        var x=cx+rad*Math.cos(ang), y=cy+rad*Math.sin(ang);
+        g.beginPath(); g.arc(x,y,4.6,0,7);
+        var grd=g.createRadialGradient(x,y,0,x,y,7); grd.addColorStop(0,"#bff0ff"); grd.addColorStop(1,COL.elec);
+        g.fillStyle=grd; g.fill();
+        g.beginPath(); g.arc(x,y,7.5,0,7); g.strokeStyle="rgba(91,214,240,0.25)"; g.lineWidth=1; g.stroke();
+      }
+    }
+    nucleus(cx,cy,34,Z,AMASS[Z-1]-Z);
+    roundedText(SYM[Z-1], cx, cy+0, "#fff", "bold "+(SYM[Z-1].length>1?17:22)+"px 'Press Start 2P',monospace","center","middle",0.96);
+
+    // ---- REGISTER (right) ----
+    var xb=600, rowY=[110,200,290,380,470], cw=29, step=31;
+    roundedText("THE REGISTER", 600, 60, COL.acc, "bold 13px 'Space Mono',monospace");
+    roundedText("each orbital = a byte", 600, 78, "rgba(160,185,215,0.7)", "11px 'Space Mono',monospace");
+    var ftype = s.frontier?s.frontier.type:null, ti="spdfg".indexOf(ftype);
+    for(var r=0;r<ORB.length;r++){
+      var letter=ORB[r][0], norb=ORB[r][1], cap=ORB[r][2], y=rowY[r], active=(r===ti);
+      // active glow box
+      if(active){ g.fillStyle="rgba(91,214,240,0.08)"; g.fillRect(548,y-26,372,52);
+        g.strokeStyle="rgba(91,214,240,0.55)"; g.lineWidth=1.5; g.strokeRect(548,y-26,372,52); }
+      roundedText(letter, 566, y+9, active?COL.elec:COL.acc, "22px 'Press Start 2P',monospace","center","alphabetic",active?1:0.85);
+      // 8 bit cells
+      for(var b=0;b<8;b++){
+        var v=(cap>>b)&1, bx=xb+(7-b)*step, seal=(b===1);
+        g.globalAlpha=v?1:0.16; g.fillStyle=seal?COL.seal:(v?COL.acc:COL.dim);
+        g.fillRect(bx, y-cw/2, cw, cw);
+        g.globalAlpha=v?1:0.5; g.fillStyle=v?"#091016":COL.ink;
+        g.font="bold 13px 'Space Mono',monospace"; g.textAlign="center"; g.textBaseline="middle";
+        g.fillText(v, bx+cw/2, y+1); g.globalAlpha=1;
+      }
+      roundedText("= "+cap, xb+8*step+6, y+6, active?COL.elec:COL.ink, "bold 16px 'Space Mono',monospace");
+      roundedText("e⁻", xb+8*step+48, y+6, "rgba(160,185,215,0.7)", "12px 'Space Mono',monospace");
+      roundedText("2l+1 = "+norb+" orbital"+(norb>1?"s":"")+"  × 2 spin", 566, y+24, "rgba(160,185,215,0.6)", "10px 'Space Mono',monospace","left","alphabetic",0.8);
+    }
+    // connector: frontier shell -> active register row
+    if(ti>=0){
+      var sy=rowY[ti], sxL=540;
+      g.setLineDash([5,4]); g.strokeStyle="rgba(91,214,240,0.45)"; g.lineWidth=1.4;
+      g.beginPath(); g.moveTo(cx+SHELLR[fn-1], cy); g.bezierCurveTo(cx+SHELLR[fn-1]+90, cy, sxL-80, sy, sxL, sy); g.stroke();
+      g.setLineDash([]);
+      roundedText("this shell ↔ this byte", (cx+SHELLR[fn-1]+sxL)/2-6, (cy+sy)/2-8, "rgba(91,214,240,0.8)", "10px 'Space Mono',monospace","center");
+    }
+    // bottom note
+    roundedText("bit 1 (gold) is locked = the spin pair, the “2”  ·  shadow bits carry the orbital", 600, 540, "rgba(230,184,74,0.85)", "10.5px 'Space Mono',monospace");
+  }
+
+  // ---- controls ----
+  var zEl=document.getElementById("z"), zlab=document.getElementById("zlabel"),
+      playBtn=document.getElementById("play"), playing=false, frame=0;
+  function setZ(v){ v=Math.max(1,Math.min(36,v|0)); zEl.value=v; zlab.textContent=SYM[v-1]+" · "+NAME[v-1]; }
+  document.getElementById("prev").onclick=function(){ setZ((zEl.value|0)-1); };
+  document.getElementById("next").onclick=function(){ setZ((zEl.value|0)+1); };
+  zEl.oninput=function(){ setZ(zEl.value|0); };
+  cv.onclick=function(){ setZ((zEl.value|0)>=36?1:(zEl.value|0)+1); };
+  playBtn.onclick=function(){ playing=!playing; playBtn.textContent=playing?"⏸ pause":"▶ play"; };
+  setZ(14);
+
+  function loop(){
+    ph+=0.016; frame++;
+    if(playing && frame%42===0){ setZ((zEl.value|0)>=36?1:(zEl.value|0)+1); }
+    draw(zEl.value|0);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
