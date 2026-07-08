@@ -4,6 +4,6 @@ slug  : atomic-structure
 seal  : 091fd78ac31097047ce011c0c2134dae6ee61694c0c8a8b3d4ce721e55afbaac
 prev  : 432e825146541b36fa67ed9e786afce700fb543ab681d118d917b58e210cc1d6
 link  : ae76be44a340bc1aa3eef2f0f823a69a9f110c20f5fb760562c98f07b2682be5
-head  : 3447d3a0533aaf1e29a8bdc67a9774884fb3ae9dbc8a17064b7a008ca3c4ec90
+head  : 13f9ace173ef2e60af38912ba329b4afcb5a38b84a0e4495e8d30327f8c99cc2
 
 — the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
